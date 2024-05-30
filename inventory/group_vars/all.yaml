@@ -1,0 +1,5 @@
+maas_db_user: maas
+maas_db_password: maas
+maas_db_address: localhost
+maas_db_port: 5432
+maas_db_name: maas
