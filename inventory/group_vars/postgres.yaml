@@ -1,11 +1,12 @@
 ---
-postgres:
+# defaults file for postgres
+pg_vars:
   version: 16
   locale: en_US.UTF-8
   encoding: UTF8
-  hba_file: "/etc/postgresql/{{ postgres.version }}/main/pg_hba.conf"
-  config_dir: "/etc/postgresql/{{ postgres.version }}/main"
-  data_dir: "/var/lib/postgresql/{{ postgres.version }}/main"
+  hba_file: /etc/postgresql/{{ version }}/main/pg_hba.conf
+  config_dir: /etc/postgresql/16/main
+  data_dir: /var/lib/postgresql/16/main
   log_dir: /var/log/postgresql
   service_name: postgresql
   service_state: started
@@ -22,15 +23,18 @@ postgres:
     - name: maas
       password: maas
   dbs:
-    - db: maas
+    - name: maas
       owner: maas
+  privs:
+    - db: maas
+      privs: ALL
+      user: maas
+      type: database
   hba_entries:
     - database: all
       contype: local
       user: all
       method: trust
-    - database: all
-      contype: host
     - database: maas
       contype: local
       user: maas
