@@ -1,0 +1,37 @@
+---
+postgres:
+  version: 16
+  locale: en_US.UTF-8
+  encoding: UTF8
+  hba_file: "/etc/postgresql/{{ postgres.version }}/main/pg_hba.conf"
+  config_dir: "/etc/postgresql/{{ postgres.version }}/main"
+  data_dir: "/var/lib/postgresql/{{ postgres.version }}/main"
+  log_dir: /var/log/postgresql
+  service_name: postgresql
+  service_state: started
+  service_enabled: true
+  postgres_db_user: postgres
+  options:
+    - name: listen_addresses
+      value: "localhost"
+    - name: log_connections
+      value: "on"
+    - name: port
+      value: "5432"
+  users:
+    - name: maas
+      password: maas
+  dbs:
+    - db: maas
+      owner: maas
+  hba_entries:
+    - database: all
+      contype: local
+      user: all
+      method: trust
+    - database: all
+      contype: host
+    - database: maas
+      contype: local
+      user: maas
+      method: trust
