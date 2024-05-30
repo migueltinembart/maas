@@ -1,0 +1,20 @@
+all:
+  vars:
+    ansible_connection: ssh
+    ansible_ssh_user: ansible
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_common_remote_group: ansible
+  children:
+    postgres:
+      hosts:
+        regiond-1:
+          ansible_host: 192.168.10.2
+    regiond:
+      hosts:
+        regiond-1:
+          ansible_host: 192.168.10.2
+    rackd:
+      hosts:
+        rackd-1:
+          ansible_host: 192.168.10.3
+    
