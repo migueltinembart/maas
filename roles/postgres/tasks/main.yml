@@ -1,0 +1,46 @@
+---
+- name: Install PostgeSQL
+  ansible.builtin.package:
+    name: postgresql=14
+    state: present
+
+- name: Install PostgreSQL Python library
+  ansible.builtin.package:
+    name: python3-psycopg2
+    state: present
+
+- name: Ensure PostgreSQL service is running
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Generate PostgreSQL password
+  community.postgresql.postgresql_user:
+    name: postgres
+    password: "{{ lookup('ansible.builtin.password', '/tmp/postgrespassword', length: 24) }}"
+    login_host: "{{ ansible_host }}"
+    login_user: postgres
+    login_password: ""
+    port: "{{ postgres_port }}"
+    state: present
+
+- name: Create PostgreSQL user
+  community.postgresql.postgresql_user:
+    name: "{{ postgres_db_user }}"
+    password: "{{ postgres_db_pass }}"
+    login_host: "{{ ansible_host }}"
+    login_user: postgres
+    login_password: "{{ postgres_db_pass }}"
+    port: "{{ postgres_port }}"
+    state: present
+
+- name: Create PostgreSQL database
+  community.postgresql.postgresql_db:
+    name: "{{ postgres_db_name }}"
+    owner: "{{ postgres_db_user }}"
+    login_host: "{{ ansible_host }}"
+    login_user: postgres
+    login_password: "{{ lookup('ansible.builtin.password', '/tmp/maaspassword', length: 24) }}"
+    port: "{{ postgres_port }}"
+    state: present
