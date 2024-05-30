@@ -4,7 +4,7 @@ pg_vars:
   version: 16
   locale: en_US.UTF-8
   encoding: UTF8
-  hba_file: /etc/postgresql/{{ version }}/main/pg_hba.conf
+  hba_file: /etc/postgresql/16/main/pg_hba.conf
   config_dir: /etc/postgresql/16/main
   data_dir: /var/lib/postgresql/16/main
   log_dir: /var/log/postgresql
@@ -20,22 +20,22 @@ pg_vars:
     - name: port
       value: "5432"
   users:
-    - name: maas
-      password: maas
+    - name: "{{ maas_db_user }}"
+      password: "{{ maas_db_password }}"
   dbs:
-    - name: maas
-      owner: maas
+    - name: "{{ maas_db_name }}"
+      owner: "{{ maas_db_user }}"
   privs:
-    - db: maas
+    - db: "{{ maas_db_name }}"
       privs: ALL
-      user: maas
+      user: "{{ maas_db_user }}"
       type: database
   hba_entries:
     - database: all
       contype: local
       user: all
       method: trust
-    - database: maas
+    - database: "{{ maas_db_name }}"
       contype: local
-      user: maas
+      user: "{{ maas_db_user }}"
       method: trust
