@@ -1,0 +1,12 @@
+---
+# defaults file for regiond
+regiond_vars:
+  db:
+    user: "{{ maas_db_user }}"
+    password: "{{ maas_db_password }}"
+    address: "{{ maas_db_address }}"
+    port: "{{ maas_db_port }}"
+    name: "{{ maas_db_name }}"
+  maas:
+    channel: 3.4/stable
+    fqdn: "{{ ansible_fqdn }}"

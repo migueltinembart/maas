@@ -4,7 +4,7 @@ pg_vars:
   version: 16
   locale: en_US.UTF-8
   encoding: UTF8
-  hba_file: /etc/postgresql/{{ version }}/main/pg_hba.conf
+  hba_file: /etc/postgresql/16/main/pg_hba.conf
   config_dir: /etc/postgresql/16/main
   data_dir: /var/lib/postgresql/16/main
   log_dir: /var/log/postgresql

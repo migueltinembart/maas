@@ -1,0 +1,18 @@
+---
+# tasks file for regiond
+
+- name: Install Maas Region Controller with snap
+  community.general.snap:
+    name: maas
+    classic: true
+    state: present
+    channel: "{{ regiond_vars.maas.channel }}"
+
+- name: Initialize Maas Region Controller
+  ansible.builtin.command: >
+    maas init region
+    --database-uri
+    postgres://{{ regiond_vars.db.user }}:{{ regiond_vars.db.password }}@{{ regiond_vars.db.address }}:{{ regiond_vars.db.port }}/{{ regiond_vars.db.name }}
+    --maas-url http://{{ ansible_fqdn }}:5240/MAAS
+  become: true
+  when: maas_regiond_initialized is not defined
