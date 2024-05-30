@@ -1,46 +1,80 @@
 ---
-- name: Install PostgeSQL
+- name: Add PostgreSQL repository key
+  ansible.builtin.get_url:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    dest: /etc/apt/keyrings/postgres.asc
+    mode: '0644'
+
+
+- name: Add specified version of PostgreSQL repository
+  ansible.builtin.apt_repository:
+    repo: >
+      deb [arch={{ ansible_architecture }} signed-by=/etc/apt/keyrings/postgres.asc]
+      http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main
+    state: present
+    filename: /etc/apt/sources.list.d/pgdg
+
+- name: Install required packages
   ansible.builtin.package:
-    name: postgresql=14
+    name: "{{ item }}"
     state: present
+  loop:
+    - ca-certificates
+    - curl
+    - acl
+    - python3-psycopg2
+    - postgresql
 
-- name: Install PostgreSQL Python library
-  ansible.builtin.package:
-    name: python3-psycopg2
-    state: present
+- name: Set options in PostgreSQL configuration
+  community.postgresql.postgresql_set:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+  become: true
+  become_user: postgres
+  with_items: "{{ pg_vars.options }}"
 
-- name: Ensure PostgreSQL service is running
-  ansible.builtin.service:
-    name: postgresql
-    state: started
-    enabled: true
-
-- name: Generate PostgreSQL password
+- name: Create PostgreSQL users
   community.postgresql.postgresql_user:
-    name: postgres
-    password: "{{ lookup('ansible.builtin.password', '/tmp/postgrespassword', length: 24) }}"
-    login_host: "{{ ansible_host }}"
-    login_user: postgres
-    login_password: ""
-    port: "{{ postgres_port }}"
-    state: present
-
-- name: Create PostgreSQL user
-  community.postgresql.postgresql_user:
-    name: "{{ postgres_db_user }}"
-    password: "{{ postgres_db_pass }}"
-    login_host: "{{ ansible_host }}"
-    login_user: postgres
-    login_password: "{{ postgres_db_pass }}"
-    port: "{{ postgres_port }}"
-    state: present
+    name: "{{ item.name }}"
+    password: "{{ item.password }}"
+    encrypted: true
+    role_attr_flags: CREATEDB
+  become: true
+  become_user: "{{ pg_vars.postgres_db_user }}"
+  environment:
+    PGOPTIONS: "-c password_encryption=scram-sha-256"
+  with_items: "{{ pg_vars.users }}"
 
 - name: Create PostgreSQL database
   community.postgresql.postgresql_db:
-    name: "{{ postgres_db_name }}"
-    owner: "{{ postgres_db_user }}"
-    login_host: "{{ ansible_host }}"
-    login_user: postgres
-    login_password: "{{ lookup('ansible.builtin.password', '/tmp/maaspassword', length: 24) }}"
-    port: "{{ postgres_port }}"
+    name: "{{ item.name }}"
+    owner: "{{ item.owner }}"
+  become: true
+  become_user: "{{ pg_vars.postgres_db_user }}"
+  with_items: "{{ pg_vars.dbs }}"
+
+- name: Modify pg_hba.conf to allow remote connections
+  community.postgresql.postgresql_pg_hba:
+    databases: "{{ item.database }}"
+    contype: "{{ item.contype }}"
+    address: "{{ item.address | default(omit) }}"
+    users: "{{ item.user }}"
+    method: "{{ item.method }}"
+    dest: "{{ pg_vars.hba_file }}"
+  become: true
+  become_user: "{{ pg_vars.postgres_db_user }}"
+  with_items: "{{ pg_vars.hba_entries }}"
+
+- name: Assign Priviliges to users for their repsective db
+  community.postgresql.postgresql_privs:
+    database: "{{ item.db }}"
+    objs: "{{ item.objs | default(omit) }}"
+    privs: "{{ item.privs }}"
+    type: "{{ item.type | default(omit) }}"
+    roles: "{{ item.user | default(omit) }}"
     state: present
+  become: true
+  become_user: "{{ pg_vars.postgres_db_user }}"
+  with_items: "{{ pg_vars.privs | default([]) }}"
+  notify:
+    - Reload PostgreSQL
