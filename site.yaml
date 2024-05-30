@@ -1,0 +1,16 @@
+---
+- name: Apply the PostgreSQL role
+  hosts: postgres
+  become: true
+  vars_files:
+    - group_vars/postgres.yaml
+  roles:
+    - postgres
+
+- name: Apply the regiond role
+  hosts: regiond
+  become: true
+  vars_files:
+    - group_vars/regiond.yaml
+  roles:
+    - regiond
