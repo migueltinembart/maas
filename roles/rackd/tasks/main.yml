@@ -15,10 +15,7 @@
   delegate_to: "{{ groups['regiond'][0] }}"
 
 - name: Initialize Maas Rack Controller
-  ansible.builtin.command: >
-    maas init rack
-    --maas-url http://{{ inventory_hostname }}:5240/MAAS
-    --secret $(cat /tmp/maas-secret)"
+  ansible.builtin.shell: "maas init rack --maas-url http://{{ inventory_hostname }}:5240/MAAS --secret $(cat /tmp/maas-secret)"
   become: true
   args:
     creates: /var/snap/maas/current/rackd.conf
