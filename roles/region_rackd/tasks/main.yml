@@ -1,0 +1,22 @@
+---
+# tasks file for region + rackd
+- name: Install Maas Controller with snap
+  community.general.snap:
+    name: maas
+    classic: true
+    state: present
+    channel: "{{ regiond_rackd_vars.maas.channel }}"
+
+- name: Check if file is empty
+  ansible.builtin.stat:
+    path: /var/snap/maas/current/regiond.conf
+  register: regiond_conf
+
+- name: Initialize Maas Region + Rack Controller
+  ansible.builtin.command: >
+    maas init region+rack
+    --database-uri
+    postgres://{{ regiond_rackd_vars.db.user }}:{{ regiond_rackd_vars.db.password }}@{{ regiond_rackd_vars.db.address }}:{{ regiond_rackd_vars.db.port }}/{{ regiond_rackd_vars.db.name }}
+    --maas-url http://{{ inventory_hostname }}:5240/MAAS
+  become: true
+  when: regiond_conf.stat.size == 0
