@@ -1,2 +1,8 @@
 ---
 # handlers file for region_rackd
+- name: Create user for maas
+  ansible.builtin.command: >
+    maas createadmin --username={{ maas_admin_user }}
+                                  --password={{ maas_admin_password }}
+                                  --email={{ maas_admin_email }}
+  become: true
