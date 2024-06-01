@@ -20,3 +20,4 @@
     --maas-url http://{{ inventory_hostname }}:5240/MAAS
   become: true
   when: regiond_conf.stat.size == 0
+  notify: Create user for maas
