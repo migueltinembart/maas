@@ -9,3 +9,7 @@ regiond_rackd_vars:
     name: "{{ maas_db_name }}"
   maas:
     channel: 3.4/stable
+    user:
+      name: "{{ maas_admin_user }}"
+      password: "{{ maas_admin_password }}"
+      email: "{{ maas_admin_email }}"
