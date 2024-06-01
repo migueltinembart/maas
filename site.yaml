@@ -7,10 +7,26 @@
   roles:
     - postgres
 
-- name: Apply the regiond role
+- name: Apply regiond role
   hosts: regiond
   become: true
   vars_files:
     - group_vars/regiond.yaml
   roles:
     - regiond
+
+- name: Apply rackd role
+  hosts: rackd
+  become: true
+  vars_files:
+    - group_vars/rackd.yaml
+  roles:
+    - rackd
+
+- name: Apply rack+region role
+  hosts: regiond_rackd
+  become: true
+  vars_files:
+    - group_vars/regiond_rackd.yaml
+  roles:
+    - region_rackd
