@@ -1,0 +1,26 @@
+---
+# tasks file for maas-api
+- name: Create a new API key
+  ansible.builtin.command: >
+    maas apikey --username={{ maas_user }}
+  register: api_key
+  changed_when: false
+
+- name: Login to maas
+  ansible.builtin.command: >
+    maas login {{ maas_user }} http://192.168.10.2:5240/MAAS/api/2.0/ {{ api_key.stdout }}
+  register: login
+  changed_when: false
+
+- name: Set Upstream DNS
+  ansible.builtin.command: >
+    maas {{ maas_user }} maas set-config name=upstream_dns value={{ maas_upstream_dns }}
+  changed_when: false
+
+- name: Add SSH Keys to maas user
+  ansible.builtin.command: >
+    maas {{ maas_user }} sshkeys create "key={{ ssh_key }}"
+  register: ssh_key_response
+  failed_when: ssh_key_response.rc is not in [0, 2]
+  changed_when: ssh_key_response.rc != 2
+
