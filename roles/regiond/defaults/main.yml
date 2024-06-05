@@ -10,3 +10,7 @@ regiond_vars:
   maas:
     channel: 3.4/stable
     fqdn: "{{ ansible_fqdn }}"
+    user:
+      name: "{{ maas_admin_user }}"
+      password: "{{ maas_admin_password }}"
+      email: "{{ maas_admin_email }}"
