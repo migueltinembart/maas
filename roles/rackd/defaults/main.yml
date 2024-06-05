@@ -1,2 +1,9 @@
 ---
 # defaults file for rackd
+rackd_vars:
+  maas:
+    channel: 3.4/stable
+    user:
+      name: "{{ maas_admin_user }}"
+      password: "{{ maas_admin_password }}"
+      email: "{{ maas_admin_email }}"
