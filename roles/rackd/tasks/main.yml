@@ -1,21 +1,31 @@
 ---
 # tasks file for rackd
+- name: Register variable within regiond
+  ansible.builtin.shell: >
+    maas apikey --username={{ rackd_vars.maas.user.name }}
+  delegate_to: "{{ groups['regiond'][0] }}"
+  register: api_key
 
 - name: Install Maas Rackd Controller with snap
   community.general.snap:
     name: maas
     classic: true
     state: present
-    channel: "{{ regiond_vars.maas.channel }}"
+    channel: "{{ rackd_vars.maas.channel }}"
 
-- name: Synchronize Secret for Maas Rack Controller
-  ansible.builtin.synchronize:
-    src: "/var/snap/maas/common/maas/secret"
-    dest: /tmp/maas-secret
-  delegate_to: "{{ groups['regiond'][0] }}"
+- name: Check if maas is initialized
+  ansible.builtin.command: >
+    maas status
+  register: maas_status
+  changed_when: maas_status.rc != 0
+  ignore_errors: true
 
 - name: Initialize Maas Rack Controller
-  ansible.builtin.shell: "maas init rack --maas-url http://{{ inventory_hostname }}:5240/MAAS --secret $(cat /tmp/maas-secret)"
+  ansible.builtin.command: >
+    maas init rack
+    --maas-url http://{{ groups['regiond'][0] }}:5240/MAAS
+    --secret {{ api_key.stdout }}
   become: true
-  args:
-    creates: /var/snap/maas/current/rackd.conf
+  when: maas_status.rc != 0
+  notify: Create user for maas
+  timeout: 60
