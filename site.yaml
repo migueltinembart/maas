@@ -30,13 +30,11 @@
     - group_vars/rackd.yaml
   roles:
     - rackd
-  
-##
-## - name: Apply rack+region role
-##   hosts: regiond_rackd
-##   become: true
-##   vars_files:
-##     - group_vars/regiond_rackd.yaml
-##   roles:
-##     - region_rackd
-##
+
+- name: Apply rack+region role
+  hosts: regiond_rackd
+  become: true
+  vars_files:
+    - group_vars/regiond_rackd.yaml
+  roles:
+    - region_rackd
