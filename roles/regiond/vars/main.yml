@@ -1,2 +1,3 @@
 ---
 # vars file for regiond
+regiond_conf_file: /var/snap/maas/current/regiond.conf
