@@ -7,10 +7,12 @@
     state: present
     channel: "{{ regiond_rackd_vars.maas.channel }}"
 
-- name: Check if file is empty
-  ansible.builtin.stat:
-    path: /var/snap/maas/current/regiond.conf
-  register: regiond_conf
+- name: Check if maas is initialized
+  ansible.builtin.command: >
+    maas status
+  register: maas_status
+  changed_when: maas_status.rc != 0
+  ignore_errors: true
 
 - name: Initialize Maas Region + Rack Controller
   ansible.builtin.command: >
@@ -19,5 +21,5 @@
     postgres://{{ regiond_rackd_vars.db.user }}:{{ regiond_rackd_vars.db.password }}@{{ regiond_rackd_vars.db.address }}:{{ regiond_rackd_vars.db.port }}/{{ regiond_rackd_vars.db.name }}
     --maas-url http://{{ inventory_hostname }}:5240/MAAS
   become: true
-  when: regiond_conf.stat.size == 0
+  when: maas_status.rc == 0
   notify: Create user for maas
