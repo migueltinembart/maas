@@ -1,0 +1,6 @@
+---
+- name: Run maas-api role
+  hosts: maas.giswil.tinclod.local
+  roles:
+    - maas-api
+  become: true

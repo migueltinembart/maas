@@ -1,0 +1,5 @@
+---
+# defaults file for maas-api
+maas_user: admin
+maas_upstream_dns: "8.8.8.8"
+ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDSA5XBY+bgkyClSqnEI4QlbVNf9fs1sgwxVjQr/CS8V Ansible"
